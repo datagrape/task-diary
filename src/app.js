@@ -25,6 +25,9 @@ app.use('/api/group', groupRoutes);
 const taskRoutes = require('./routes/taskRoutes');
 app.use('/api/task', taskRoutes);
 
+const subscriptionRoutes = require("./routes/subscription");
+app.use("/api/subscriptionupdate", subscriptionRoutes);
+
 // Error handling middleware
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
