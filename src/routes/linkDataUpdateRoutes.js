@@ -4,7 +4,7 @@ const router = express.Router();
 const linkDataUpdateController = require('../controllers/linkDataUpdateController');
 
 // Routes
-router.post('/', linkDataUpdateController.LinkData);
+router.post('/', linkDataUpdateController.linkData);
 
 module.exports = router;
 
