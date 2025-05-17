@@ -28,6 +28,9 @@ app.use('/api/task', taskRoutes);
 const subscriptionRoutes = require("./routes/subscription");
 app.use("/api/subscriptionupdate", subscriptionRoutes);
 
+const linkDataUpdateRoutes = require("./routes/linkDataUpdateRoutes");
+app.use("/api/link-data", linkDataUpdateRoutes);
+
 // Error handling middleware
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
