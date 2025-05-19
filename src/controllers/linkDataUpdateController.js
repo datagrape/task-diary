@@ -55,4 +55,53 @@ exports.getLinkData = async (req, res) => {
     });
   }
 };
+exports.getMemberLinkData = async (req, res) => {
+  const { link, member } = req.query; // Query parameters from the request
+
+  if (!link || !member) {
+    return res.status(400).json({ error: "Missing required fields: link and member are required." });
+  }
+
+  try {
+    const linkResponse = await linkDataUpdateService.linkData(
+      link,
+      member
+    );
+
+    return res.status(200).json({
+      message: "Link data retrieved successfully",
+      link: linkResponse
+    });
+  } catch (error) {
+    console.error("Error handling link:", error);
+    return res.status(500).json({
+      error: "An error occurred while retrieving the link data."
+    });
+  }
+};
+
+exports.getOwnerLinkData = async (req, res) => {
+  const { link, owner } = req.query; // Query parameters from the request
+
+  if (!link || !owner) {
+    return res.status(400).json({ error: "Missing required fields: link and owner are required." });
+  }
+
+  try {
+    const linkResponse = await linkDataUpdateService.linkData(
+      link,
+      owner
+    );
+
+    return res.status(200).json({
+      message: "Link data retrieved successfully",
+      link: linkResponse
+    });
+  } catch (error) {
+    console.error("Error handling link:", error);
+    return res.status(500).json({
+      error: "An error occurred while retrieving the link data."
+    });
+  }
+};
 

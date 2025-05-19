@@ -5,7 +5,9 @@ const linkDataUpdateController = require('../controllers/linkDataUpdateControlle
 
 // Routes
 router.post('/', linkDataUpdateController.linkData);
-router.get('/', linkDataUpdateController.getLinkData);
+router.get('/get-link-data', linkDataUpdateController.getLinkData);
+router.get('/get-member-link-data', linkDataUpdateController.getMemberLinkData);
+router.get('/get-owner-link-data', linkDataUpdateController.getOwnerLinkData);
 
 
 module.exports = router;

@@ -39,4 +39,25 @@ exports.getLinkData = async (link) => {
 };
 
 
+exports.getMemberLinkData = async (link, member) => {
+  const existingLink = await prisma.link.findFirst({ where: { link, member } });
+  // If `link` and `member` are provided, fetch the specific link
+  if (existingLink) {
+    return prisma.link.findFirst({
+      where: { link, member }
+    });
+  }
+};
+
+exports.getOwnerLinkData = async (link, owner) => {
+  const existingLink = await prisma.link.findFirst({ where: { link, owner } });
+  // If `link` and `owner` are provided, fetch the specific link
+  if (existingLink) {
+    return prisma.link.findFirst({
+      where: { link, owner }
+    });
+  }
+};
+
+
 
