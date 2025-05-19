@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const linkDataUpdateService = require('../services/linkDataUpdateService');
 
 exports.linkData = async (req, res) => {
-  const { link, owner, duedate, group, member, taskname } = req.body;
+  const { link, owner, duedate, group, member, taskname, completeddate, location } = req.body;
 
   if (!link) {
     return res.status(400).json({ error: "Missing required field: link is required." });
@@ -15,7 +15,9 @@ exports.linkData = async (req, res) => {
       duedate,
       group,
       member,
-      taskname
+      taskname,
+      completeddate,
+      location
     );
 
     return res.status(existingLink ? 200 : 201).json({

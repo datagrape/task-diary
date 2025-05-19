@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-exports.linkData = async (link, owner, duedate, group, member, taskname) => {
+exports.linkData = async (link, owner, duedate, group, member, taskname, completeddate, location) => {
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
   if (existingLink) {
@@ -9,11 +9,8 @@ exports.linkData = async (link, owner, duedate, group, member, taskname) => {
     return prisma.link.update({
       where: { link },
       data: {
-        owner,
-        duedate,
-        group,
-        member,
-        taskname
+        completeddate,
+        location
       }
     });
   } else {

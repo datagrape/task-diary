@@ -98,6 +98,8 @@ model Link {
   member         String
   group          String
   duedate        DateTime
+  completeddate        DateTime?
+  location       String?
 }
 
 
