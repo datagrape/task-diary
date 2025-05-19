@@ -5,6 +5,8 @@ const linkDataUpdateController = require('../controllers/linkDataUpdateControlle
 
 // Routes
 router.post('/', linkDataUpdateController.linkData);
+router.get('/', linkDataUpdateController.getLinkData);
+
 
 module.exports = router;
 

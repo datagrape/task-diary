@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const linkDataUpdateService = require('../services/linkDataUpdateService');
 
 exports.linkData = async (req, res) => {
-  const { link, owner, companyName, activityName, employeeName, data } = req.body;
+  const { link, owner, duedate, group, member, taskname } = req.body;
 
   if (!link) {
     return res.status(400).json({ error: "Missing required field: link is required." });
@@ -12,10 +12,10 @@ exports.linkData = async (req, res) => {
     const linkResponse = await linkDataUpdateService.linkData(
       link,
       owner,
-      companyName,
-      activityName,
-      employeeName,
-      data
+      duedate,
+      group,
+      member,
+      taskname
     );
 
     return res.status(existingLink ? 200 : 201).json({
@@ -29,3 +29,28 @@ exports.linkData = async (req, res) => {
     });
   }
 };
+
+exports.getLinkData = async (req, res) => {
+  const { link } = req.query; // Query parameters from the request
+
+  if (!link) {
+    return res.status(400).json({ error: "Missing required field: link is required." });
+  }
+
+  try {
+    const linkResponse = await linkDataUpdateService.linkData(
+      link
+    );
+
+    return res.status(200).json({
+      message: "Link data retrieved successfully",
+      link: linkResponse
+    });
+  } catch (error) {
+    console.error("Error handling link:", error);
+    return res.status(500).json({
+      error: "An error occurred while creating/updating the link."
+    });
+  }
+};
+
