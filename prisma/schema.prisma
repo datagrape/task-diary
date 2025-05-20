@@ -97,8 +97,8 @@ model Link {
   taskname       String
   member         String
   group          String
-  duedate        DateTime
-  completeddate        DateTime?
+  duedate        String
+  completeddate        String?
   location       String?
 }
 
