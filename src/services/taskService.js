@@ -9,9 +9,10 @@ exports.createTask = async (
     activityName,
     activityId,
     member,
-    dueDate) => {
+    dueDate,
+    type) => {
     return prisma.task.create({
-        data: {name, userId, groupName, groupId, activityName, activityId, member, dueDate },
+        data: {name, userId, groupName, groupId, activityName, activityId, member, dueDate, type },
     });
 };
 

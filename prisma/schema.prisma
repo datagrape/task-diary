@@ -49,6 +49,7 @@ model Task {
   activityId        Int
   member            String
   dueDate           String
+  type           String
 }
 
 model User {
