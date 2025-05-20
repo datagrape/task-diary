@@ -109,8 +109,11 @@ exports.getMemberLinkData = async (req, res) => {
   if (!link || !member) {
     return res.status(400).json({ error: "Missing required fields: link and member are required." });
   }
-
+  // 🧼 Sanitize all string inputs
+  link = cleanString(link);
+  member = cleanString(member);
   try {
+    
     const linkResponse = await linkDataUpdateService.linkData(
       link,
       member
@@ -135,6 +138,9 @@ exports.getOwnerLinkData = async (req, res) => {
     return res.status(400).json({ error: "Missing required fields: link and owner are required." });
   }
 
+  // 🧼 Sanitize all string inputs
+  link = cleanString(link);
+  owner = cleanString(owner);
   try {
     const linkResponse = await linkDataUpdateService.linkData(
       link,
