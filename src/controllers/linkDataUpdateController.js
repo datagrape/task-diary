@@ -41,8 +41,8 @@ exports.linkData = async (req, res) => {
     id, link, owner, duedate, group, member, taskname, completeddate, location
   } = req.body;
 
-  if (!link) {
-    return res.status(400).json({ error: "Missing required field: link is required." });
+  if (!id) {
+    return res.status(400).json({ error: "Missing required field: id is required." });
   }
 
   // 🧼 Sanitize all string inputs
