@@ -104,7 +104,7 @@ exports.getLinkData = async (req, res) => {
   }
 };
 exports.getMemberLinkData = async (req, res) => {
-  const { link, member } = req.query; // Query parameters from the request
+  let { link, member } = req.query; // Query parameters from the request
 
   if (!link || !member) {
     return res.status(400).json({ error: "Missing required fields: link and member are required." });
@@ -132,7 +132,7 @@ exports.getMemberLinkData = async (req, res) => {
 };
 
 exports.getOwnerLinkData = async (req, res) => {
-  const { link, owner } = req.query; // Query parameters from the request
+  let { link, owner } = req.query; // Query parameters from the request
 
   if (!link || !owner) {
     return res.status(400).json({ error: "Missing required fields: link and owner are required." });
