@@ -41,8 +41,8 @@ exports.linkData = async (req, res) => {
     id, link, owner, duedate, group, member, taskname, completeddate, location
   } = req.body;
 
-  if (!id) {
-    return res.status(400).json({ error: "Missing required field: id is required." });
+  if (!link) {
+    return res.status(400).json({ error: "Missing required field: link is required." });
   }
 
   // 🧼 Sanitize all string inputs
@@ -105,19 +105,17 @@ exports.getLinkData = async (req, res) => {
   }
 };
 exports.getMemberLinkData = async (req, res) => {
-  let { id, link, member } = req.query; // Query parameters from the request
+  let {link, member } = req.query; // Query parameters from the request
 
-  if (!id || !link || !member) {
+  if (!link || !member) {
     return res.status(400).json({ error: "Missing required fields: link and member are required." });
   }
   // 🧼 Sanitize all string inputs
-  id = cleanString(id);
   link = cleanString(link);
   member = cleanString(member);
   try {
     
-    const linkResponse = await linkDataUpdateService.linkData(
-      id,
+    const linkResponse = await linkDataUpdateService.getMemberLinkData(
       link,
       member
     );
@@ -135,19 +133,17 @@ exports.getMemberLinkData = async (req, res) => {
 };
 
 exports.getOwnerLinkData = async (req, res) => {
-  let { id, link, owner } = req.query; // Query parameters from the request
+  let { link, owner } = req.query; // Query parameters from the request
 
-  if (!id || !link || !owner) {
+  if (!link || !owner) {
     return res.status(400).json({ error: "Missing required fields: link and owner are required." });
   }
 
   // 🧼 Sanitize all string inputs
-  id = cleanString(id);
   link = cleanString(link);
   owner = cleanString(owner);
   try {
-    const linkResponse = await linkDataUpdateService.linkData(
-      id,
+    const linkResponse = await linkDataUpdateService.getOwnerLinkData(
       link,
       owner
     );
