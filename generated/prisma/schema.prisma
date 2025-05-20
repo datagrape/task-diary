@@ -141,10 +141,14 @@ model Payment {
 
 model Link {
   id        Int     @id @default(autoincrement())
-  link      String  @unique
-  owner     String?
-  recievers Json?
-  data      Json
+  link           String  @unique
+  owner          String?
+  taskname       String
+  member         String
+  group          String
+  duedate        DateTime
+  completeddate        DateTime?
+  location       String?
 }
 
 model Ad {
