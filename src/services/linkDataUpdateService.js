@@ -22,7 +22,9 @@ exports.linkData = async (link, owner, duedate, group, member, taskname, complet
         duedate,
         group,
         member,
-        taskname
+        taskname,
+        completeddate, 
+        location
       }
     });
   }
