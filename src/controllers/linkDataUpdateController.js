@@ -38,7 +38,7 @@ function cleanString(value) {
 
 exports.linkData = async (req, res) => {
   let {
-    id, link, owner, duedate, group, member, taskname, completeddate, location
+    link, owner, duedate, group, member, taskname, completeddate, location
   } = req.body;
 
   if (!link) {
@@ -46,7 +46,6 @@ exports.linkData = async (req, res) => {
   }
 
   // 🧼 Sanitize all string inputs
-  id = cleanString(id);
   link = cleanString(link);
   owner = cleanString(owner);
   group = cleanString(group);
@@ -57,7 +56,7 @@ exports.linkData = async (req, res) => {
 
   
   // 🔍 Check for null bytes (for debugging)
-  for (const [key, value] of Object.entries({ id, link, owner, duedate, group, member, taskname, completeddate, location })) {
+  for (const [key, value] of Object.entries({ link, owner, duedate, group, member, taskname, completeddate, location })) {
     if (typeof value === 'string' && value.includes('\x00')) {
       console.log(`🚨 Null byte found in field: ${key}`);
     }
@@ -65,7 +64,7 @@ exports.linkData = async (req, res) => {
 
   try {
     const linkResponse = await linkDataUpdateService.linkData(
-      id, link, owner, duedate, group, member, taskname, completeddate, location
+      link, owner, duedate, group, member, taskname, completeddate, location
     );
 
     return res.status(201).json({
@@ -105,19 +104,17 @@ exports.getLinkData = async (req, res) => {
   }
 };
 exports.getMemberLinkData = async (req, res) => {
-  let {link, member } = req.query; // Query parameters from the request
+  let {link } = req.query; // Query parameters from the request
 
-  if (!link || !member) {
-    return res.status(400).json({ error: "Missing required fields: link and member are required." });
+  if (!link) {
+    return res.status(400).json({ error: "Missing required fields: link is required." });
   }
   // 🧼 Sanitize all string inputs
   link = cleanString(link);
-  member = cleanString(member);
   try {
     
     const linkResponse = await linkDataUpdateService.getMemberLinkData(
-      link,
-      member
+      link
     );
 
     return res.status(200).json({
@@ -133,18 +130,16 @@ exports.getMemberLinkData = async (req, res) => {
 };
 
 exports.getOwnerLinkData = async (req, res) => {
-  let { link, owner } = req.query; // Query parameters from the request
+  let {owner } = req.query; // Query parameters from the request
 
-  if (!link || !owner) {
-    return res.status(400).json({ error: "Missing required fields: link and owner are required." });
+  if (!owner) {
+    return res.status(400).json({ error: "Missing required fields: owner is required." });
   }
 
   // 🧼 Sanitize all string inputs
-  link = cleanString(link);
   owner = cleanString(owner);
   try {
     const linkResponse = await linkDataUpdateService.getOwnerLinkData(
-      link,
       owner
     );
 

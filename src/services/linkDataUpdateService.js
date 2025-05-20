@@ -1,13 +1,13 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-exports.linkData = async (id, link, owner, duedate, group, member, taskname, completeddate, location) => {
+exports.linkData = async ( link, owner, duedate, group, member, taskname, completeddate, location) => {
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
   if (existingLink) {
     // Update the existing link with new data
     return prisma.link.update({
-      where: { id },
+      where: { link },
       data: {
         completeddate,
         location
@@ -41,22 +41,22 @@ exports.getLinkData = async (link) => {
 };
 
 
-exports.getMemberLinkData = async (link, member) => {
-  const existingLink = await prisma.link.findFirst({ where: { link, member } });
+exports.getMemberLinkData = async (link) => {
+  const existingLink = await prisma.link.findFirst({ where: { link } });
   // If `link` and `member` are provided, fetch the specific link
   if (existingLink) {
     return prisma.link.findFirst({
-      where: { link, member }
+      where: { link }
     });
   }
 };
 
-exports.getOwnerLinkData = async (link, owner) => {
-  const existingLink = await prisma.link.findFirst({ where: { link, owner } });
+exports.getOwnerLinkData = async ( owner) => {
+  const existingLink = await prisma.link.findFirst({ where: {  owner } });
   // If `link` and `owner` are provided, fetch the specific link
   if (existingLink) {
     return prisma.link.findFirst({
-      where: { link, owner }
+      where: { owner }
     });
   }
 };
