@@ -100,9 +100,19 @@ model Link {
   member         String?
   group          String?
   duedate        String?
-  completeddate        String?
+  completeddate  String?
   location       String?
+  freecount      Int     @default(5)  // 👈 Default value added
+  subscription   String? 
 }
+
+model paidmemberdata {
+  id       Int    @id @default(autoincrement())
+  link     String
+  otp      String
+  otpcount Int    @default(1)
+}
+
 
 
 model Ad {
