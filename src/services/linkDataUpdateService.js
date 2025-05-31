@@ -21,9 +21,9 @@ exports.linkData = async (
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
   // If subscription is 'paid', send OTPs and update paidmemberdata
-  if (subscription === "paid") {
+  if (subscription == "paid") {
     try {
-      const memberObj = typeof member === "string" ? JSON.parse(member) : member;
+      const memberObj = typeof member == "string" ? JSON.parse(member) : member;
 
       for (const name in memberObj) {
         const phoneNumber = memberObj[name];
@@ -110,7 +110,7 @@ exports.getMemberLinkData = async (link, otp = null) => {
   }
 
   // FREE subscription logic
-  if (existingLink.subscription === "free") {
+  if (existingLink.subscription == "free") {
     if (existingLink.freecount > 0) {
       await prisma.link.update({
         where: { id: existingLink.id },
@@ -124,7 +124,7 @@ exports.getMemberLinkData = async (link, otp = null) => {
   }
 
   // PAID subscription logic
-  if (existingLink.subscription === "paid") {
+  if (existingLink.subscription == "paid") {
     if (!otp) {
       return { message: "OTP required for paid access" };
     }
