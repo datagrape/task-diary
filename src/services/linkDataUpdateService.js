@@ -30,7 +30,7 @@ exports.linkData = async (
         const otp = generateOTP();
 
         // Send OTP via Textbelt
-        await sendFreeOtpTextbelt(phoneNumber, otp);
+        // await sendFreeOtpTextbelt(phoneNumber, otp);
 
         // Save link and OTP to paidmemberdata table
         await prisma.paidmemberdata.create({
