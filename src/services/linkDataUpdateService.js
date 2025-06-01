@@ -129,7 +129,7 @@ exports.getMemberLinkData = async (link, otp = null) => {
       return { message: "OTP required for paid access" };
     }
 
-    const paidMember = await prisma.paidmemberdatatable.findFirst({
+    const paidMember = await prisma.paidmemberdata.findFirst({
       where: {
         link: link,
         otp: otp
@@ -141,7 +141,7 @@ exports.getMemberLinkData = async (link, otp = null) => {
     }
 
     if (paidMember.otpcount > 0) {
-      await prisma.paidmemberdatatable.update({
+      await prisma.paidmemberdata.update({
         where: { id: paidMember.id },
         data: { otpcount: { decrement: 1 } }
       });
