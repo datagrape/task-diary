@@ -20,6 +20,35 @@ exports.linkData = async (
 ) => {
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
+
+  // if (existingLink) {
+  //   return prisma.link.update({
+  //     where: { link },
+  //     data: {
+  //       completeddate,
+  //       location
+  //     }
+  //   });
+  // }
+  if (existingLink) {
+    // ✅ If both values already exist, just return them
+    if (existingLink.completeddate && existingLink.location) {
+      return {
+        completeddate: existingLink.completeddate,
+        location: existingLink.location
+      };
+    }
+
+    // ✅ Else update the link with new values
+    return prisma.link.update({
+      where: { link },
+      data: {
+        completeddate,
+        location
+      }
+    });
+  }
+
   // If subscription is 'paid', send OTPs and update paidmemberdata
   if (subscription == "paid") {
     try {
@@ -43,16 +72,6 @@ exports.linkData = async (
     } catch (error) {
       console.error("Error processing paid members:", error);
     }
-  }
-
-  if (existingLink) {
-    return prisma.link.update({
-      where: { link },
-      data: {
-        completeddate,
-        location
-      }
-    });
   } else {
     return prisma.link.create({
       data: {
@@ -91,15 +110,31 @@ async function sendFreeOtpTextbelt(phoneNumber, otp) {
 }
 
 
-exports.getLinkData = async (link) => {
-  const existingLink = await prisma.link.findUnique({ where: { link } });
-  // If `link` is provided, fetch the specific link
-  if (existingLink) {
-    return prisma.link.findUnique({
-      where: { link: link }
-    });
+// exports.getLinkData = async (link) => {
+//   const existingLink = await prisma.link.findUnique({ where: { link } });
+//   // If `link` is provided, fetch the specific link
+//   if (existingLink) {
+//     return prisma.link.findUnique({
+//       where: { link: link }
+//     });
+//   }
+// };
+
+exports.getLinkData = async (links) => {
+  // Ensure it's an array
+  if (!Array.isArray(links)) {
+    throw new Error("Expected an array of links");
   }
+
+  return prisma.link.findMany({
+    where: {
+      link: {
+        in: links
+      }
+    }
+  });
 };
+
 
 
 exports.getMemberLinkData = async (link, otp = null) => {

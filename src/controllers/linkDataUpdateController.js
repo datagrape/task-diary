@@ -50,17 +50,44 @@ exports.linkData = async (req, res) => {
 };
 
 
+// exports.getLinkData = async (req, res) => {
+//   const { link } = req.query; // Query parameters from the request
+
+//   if (!link) {
+//     return res.status(400).json({ error: "Missing required field: link is required." });
+//   }
+
+//   try {
+//     const linkResponse = await linkDataUpdateService.linkData(
+//       link
+//     );
+
+//     return res.status(200).json({
+//       message: "Link data retrieved successfully",
+//       link: linkResponse
+//     });
+//   } catch (error) {
+//     console.error("Error handling link:", error);
+//     return res.status(500).json({
+//       error: "An error occurred while creating/updating the link."
+//     });
+//   }
+// };
+
 exports.getLinkData = async (req, res) => {
-  const { link } = req.query; // Query parameters from the request
+  let { link } = req.query; // Can be a string or array
 
   if (!link) {
     return res.status(400).json({ error: "Missing required field: link is required." });
   }
 
+  // Convert comma-separated string to array if needed
+  if (typeof link === 'string') {
+    link = link.split(',').map(l => l.trim());
+  }
+
   try {
-    const linkResponse = await linkDataUpdateService.linkData(
-      link
-    );
+    const linkResponse = await linkDataUpdateService.getLinkData(link); // Updated service function
 
     return res.status(200).json({
       message: "Link data retrieved successfully",
@@ -69,10 +96,11 @@ exports.getLinkData = async (req, res) => {
   } catch (error) {
     console.error("Error handling link:", error);
     return res.status(500).json({
-      error: "An error occurred while creating/updating the link."
+      error: "An error occurred while retrieving the link data."
     });
   }
 };
+
 exports.getMemberLinkData = async (req, res) => {
   let { link, otp } = req.query; // Query parameters from the request
 
