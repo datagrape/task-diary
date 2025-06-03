@@ -86,6 +86,8 @@ exports.getMemberLinkData = async (req, res) => {
 
   try {
     const linkResponse = await linkDataUpdateService.getMemberLinkData(link, otp);
+    
+    console.log("LINK RESPONSE", linkResponse); // 🔍 Add this
 
     if (linkResponse?.message === "OTP required for paid access") {
       return res.status(400).json({ message: linkResponse.message });
