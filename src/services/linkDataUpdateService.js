@@ -162,7 +162,7 @@ exports.getOwnerLinkData = async ( owner) => {
   const existingLink = await prisma.link.findFirst({ where: {  owner } });
   // If `link` and `owner` are provided, fetch the specific link
   if (existingLink) {
-    return prisma.link.findFirst({
+    return prisma.link.findMany({
       where: { owner }
     });
   }
