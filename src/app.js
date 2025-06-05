@@ -13,8 +13,14 @@ app.use((req, res, next) => {
     next();
   });
   
- // Serve .well-known folder statically
-app.use('/.well-known', express.static(path.join(__dirname, '../.well-known'))); 
+// ✅ Serve .well-known from root
+app.use('/.well-known', express.static(path.join(__dirname, '../.well-known')));
+
+app.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.type('application/json');
+  res.sendFile(path.join(__dirname, '../.well-known/apple-app-site-association'));
+});
+
 // Routes
 const loginRoutes = require('./routes/loginRoutes');
 app.use('/api/login', loginRoutes);
