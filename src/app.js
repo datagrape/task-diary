@@ -12,6 +12,8 @@ app.use((req, res, next) => {
     next();
   });
   
+ // Serve .well-known folder statically
+app.use('/.well-known', express.static(path.join(__dirname, '../.well-known'))); 
 // Routes
 const loginRoutes = require('./routes/loginRoutes');
 app.use('/api/login', loginRoutes);
