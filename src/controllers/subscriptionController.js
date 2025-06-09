@@ -36,7 +36,7 @@ exports.subscription = async (req, res, next) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  email = cleanString(email);
+  email = cleanString(email).toLowerCase();;
   subscriptionType = cleanString(subscriptionType);
 
   

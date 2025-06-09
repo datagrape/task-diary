@@ -37,31 +37,22 @@ const prisma = new PrismaClient();
 //   });
 // };
 
-exports.subscription = async (rawEmail, subscriptionType) => {
-  const email = rawEmail.trim().toLowerCase().replace(/\x00/g, ""); // Clean it
-
-  console.log("🔍 Sanitized email:", email); // Debug
-
-//   const user = await prisma.user.findUnique({
-//     where: { email },
-//   });
-
-    const user = await prisma.user.findFirst({
+exports.subscription = async (email, subscriptionType) => {
+  const user = await prisma.user.findFirst({
     where: {
-        email: {
-        equals: email,
-        mode: 'insensitive'
-        }
-    }
-    });
-
+      email: {
+        equals: email.toLowerCase(),
+        mode: 'insensitive',
+      },
+    },
+  });
 
   if (!user) {
     throw new Error("User not found");
   }
 
   return prisma.user.update({
-    where: { email },
+    where: { email: user.email },
     data: { subscriptionType },
   });
 };
