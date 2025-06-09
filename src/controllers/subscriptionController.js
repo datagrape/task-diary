@@ -27,7 +27,10 @@ function cleanString(value) {
 
 
 exports.subscription = async (req, res, next) => {
-  const { email, subscriptionType } = req.body;
+//   const { email, subscriptionType } = req.body;
+  let {
+     email, subscriptionType
+  } = req.body;
 
   if (!email || !subscriptionType) {
     return res.status(400).json({ error: "All fields are required" });
