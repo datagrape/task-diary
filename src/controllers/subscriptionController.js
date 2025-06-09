@@ -18,6 +18,9 @@
 //     }
 // };
 
+const bcrypt = require("bcrypt");
+const subscriptionService = require('../services/subscriptionService');
+
 exports.subscription = async (req, res, next) => {
   const { email, subscriptionType } = req.body;
 
