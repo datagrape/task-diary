@@ -21,11 +21,27 @@
 const bcrypt = require("bcrypt");
 const subscriptionService = require('../services/subscriptionService');
 
+function cleanString(value) {
+  return typeof value === 'string' ? value.replace(/\x00/g, '') : value;
+}
+
+
 exports.subscription = async (req, res, next) => {
   const { email, subscriptionType } = req.body;
 
   if (!email || !subscriptionType) {
     return res.status(400).json({ error: "All fields are required" });
+  }
+
+  email = cleanString(email);
+  subscriptionType = cleanString(subscriptionType);
+
+  
+  // 🔍 Check for null bytes (for debugging)
+  for (const [key, value] of Object.entries({ email, subscriptionType })) {
+    if (typeof value === 'string' && value.includes('\x00')) {
+      console.log(`🚨 Null byte found in field: ${key}`);
+    }
   }
 
   try {
