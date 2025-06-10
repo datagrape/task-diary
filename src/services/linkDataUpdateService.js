@@ -68,6 +68,19 @@ exports.linkData = async (
             otp
           }
         });
+        return prisma.link.create({
+          data: {
+            link,
+            owner,
+            duedate,
+            group,
+            member,
+            taskname,
+            completeddate,
+            location,
+            subscription
+          }
+        });
       }
     } catch (error) {
       console.error("Error processing paid members:", error);
