@@ -21,30 +21,9 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// exports.subscription = async (email, subscriptionType) => {
-//   const user = await prisma.user.findFirst({
-//     where: { email },
-//   });
-
-//   if (!user) {
-//     // Throw an error instead of using res
-//     throw new Error("User not found");
-//   }
-
-//   return prisma.user.update({
-//     where: { email },
-//     data: { subscriptionType },
-//   });
-// };
-
 exports.subscription = async (email, subscriptionType) => {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: {
-        equals: email.toLowerCase(),
-        mode: 'insensitive',
-      },
-    },
+  const user = await prisma.user.findUnique({
+    where: { email },
   });
 
   if (!user) {
