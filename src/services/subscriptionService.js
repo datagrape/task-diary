@@ -23,7 +23,7 @@ const prisma = new PrismaClient();
 
 exports.subscription = async (email, subscriptionType) => {
   const user = await prisma.user.findUnique({
-    where: { email: "kary1@gmail.com" },
+    where: { email: email },
   });
 
   if (!user) {
