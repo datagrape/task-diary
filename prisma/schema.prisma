@@ -54,19 +54,21 @@ model Task {
 }
 
 model User {
-  id                 Int              @id @default(autoincrement())
-  name               String?
-  email              String           @unique
-  password           String?
-  userType           UserType
-  link               String?
-  subscriptionType   SubscriptionType
-  lastPaymentDate         DateTime?     
-  cancellationReason      String?     
-  otp                String?          // OTP field
-  otpExpiration      DateTime?        // OTP expiration time
-  subscriptions       Subscription[]
+  id                   Int              @id @default(autoincrement())
+  name                 String?
+  email                String           @unique
+  password             String?
+  userType             UserType
+  link                 String?
+  subscriptionType     SubscriptionType
+  lastPaymentDate      DateTime?
+  cancellationReason   String?
+  otp                  String?
+  otpExpiration        DateTime?
+  subscriptions        Subscription[]
+  createdAt            DateTime         @default(now())
 }
+
 
 model Subscription {
   id                   Int        @id @default(autoincrement())
@@ -104,6 +106,7 @@ model Link {
   location       String?
   freecount      Int     @default(5)  // 👈 Default value added
   subscription   String? 
+  updatedBy   String? 
 }
 
 model paidmemberdata {

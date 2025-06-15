@@ -16,37 +16,41 @@ exports.linkData = async (
   taskname,
   completeddate,
   location,
-  subscription
+  subscription,
+  updatedBy,
+  updateType
 ) => {
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
-
-  // if (existingLink) {
-  //   return prisma.link.update({
-  //     where: { link },
-  //     data: {
-  //       completeddate,
-  //       location
-  //     }
-  //   });
-  // }
   if (existingLink) {
-    // ✅ If both values already exist, just return them
-    if (existingLink.completeddate && existingLink.location) {
-      return {
-        completeddate: existingLink.completeddate,
-        location: existingLink.location
-      };
-    }
+    if( updateType === "task") {
+        // ✅ If both values already exist, just return them
+        if (existingLink.completeddate && existingLink.location) {
+          return {
+            completeddate: existingLink.completeddate,
+            location: existingLink.location
+          };
+        }
 
-    // ✅ Else update the link with new values
-    return prisma.link.update({
-      where: { link },
-      data: {
-        completeddate,
-        location
+        // ✅ Else update the link with new values
+        return prisma.link.update({
+          where: { link },
+          data: {
+            completeddate,
+            location,
+            updatedBy
+          }
+        });
       }
-    });
+      else if (updateType === "member") {
+        // If the link exists and updateType is 'update', update the existing link
+        return prisma.link.update({
+          where: { link },
+          data: {
+            member
+          }
+        });
+      }
   }
 
   // If subscription is 'paid', send OTPs and update paidmemberdata
@@ -122,17 +126,6 @@ async function sendFreeOtpTextbelt(phoneNumber, otp) {
   }
 }
 
-
-// exports.getLinkData = async (link) => {
-//   const existingLink = await prisma.link.findUnique({ where: { link } });
-//   // If `link` is provided, fetch the specific link
-//   if (existingLink) {
-//     return prisma.link.findUnique({
-//       where: { link: link }
-//     });
-//   }
-// };
-
 exports.getLinkData = async (links) => {
   // Ensure it's an array
   if (!Array.isArray(links)) {
@@ -147,8 +140,6 @@ exports.getLinkData = async (links) => {
     }
   });
 };
-
-
 
 exports.getMemberLinkData = async (link, otp = null) => {
   const existingLink = await prisma.link.findFirst({ where: { link } });
@@ -202,9 +193,6 @@ exports.getMemberLinkData = async (link, otp = null) => {
 
   return { message: "Invalid subscription type" };
 };
-
-
-
 
 exports.getOwnerLinkData = async ( owner) => {
   const existingLink = await prisma.link.findFirst({ where: {  owner } });
