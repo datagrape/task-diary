@@ -28,7 +28,8 @@ exports.linkData = async (
         if (existingLink.completeddate && existingLink.location) {
           return {
             completeddate: existingLink.completeddate,
-            location: existingLink.location
+            location: existingLink.location,
+            updatedBy: existingLink.updatedBy
           };
         }
 
