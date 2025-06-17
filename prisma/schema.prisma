@@ -96,6 +96,7 @@ model Payment {
 
 model Link {
   id             Int     @id @default(autoincrement())
+  taskId         String
   link           String  @unique
   owner          String?
   taskname       String?
@@ -106,7 +107,8 @@ model Link {
   location       String?
   freecount      Int     @default(5)  // 👈 Default value added
   subscription   String? 
-  updatedBy   String? 
+  updatedBy      String? 
+  isAccessed     Int     @default(0)  // 👈 Default value added
 }
 
 model paidmemberdata {
