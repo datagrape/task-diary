@@ -49,12 +49,12 @@ exports.linkData = async (
 
     // ✅ Else update the link with new values
     return prisma.link.update({
-      where: { link },
+      where: { taskId },
       data: {
         completeddate,
         location,
-        updatedBy,
-        isAccessed: 1 // Mark as accessed
+        updatedBy
+        // isAccessed: 1 // Mark as accessed
       }
     });
   }
