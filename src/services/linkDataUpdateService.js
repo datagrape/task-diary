@@ -53,8 +53,8 @@ exports.linkData = async (
       data: {
         completeddate,
         location,
-        updatedBy
-        // isAccessed: 1 // Mark as accessed
+        updatedBy,
+        isAccessed: 1 // Mark as accessed
       }
     });
   }
