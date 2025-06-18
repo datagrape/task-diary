@@ -59,7 +59,7 @@ exports.linkData = async (
     });
 
     // Return all links for that taskId after update
-    const allLinks = await prisma.link.find({
+    const allLinks = await prisma.link.findUnique({
       where: { link }
     });
 
