@@ -48,7 +48,7 @@ exports.linkData = async (
   else if (existingLink && allUpdatedByNull) {
 
     // ✅ Else update the link with new values
-    return prisma.link.update({
+    return prisma.link.updateMany({
       where: { taskId },
       data: {
         completeddate,
