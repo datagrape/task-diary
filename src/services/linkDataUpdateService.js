@@ -48,15 +48,22 @@ exports.linkData = async (
   else if (existingLink && allUpdatedByNull) {
 
     // ✅ Else update the link with new values
-    return prisma.link.updateMany({
+    const updatedLinks = await prisma.link.updateMany({
       where: { taskId },
       data: {
-        completeddate,
-        location,
-        updatedBy,
-        isAccessed: 1 // Mark as accessed
+      completeddate,
+      location,
+      updatedBy,
+      isAccessed: 1 // Mark as accessed
       }
     });
+
+    // Return all links for that taskId after update
+    const allLinks = await prisma.link.findMany({
+      where: { taskId }
+    });
+
+    return allLinks;
   }
   else {
       // Find the first link with the same taskId where updatedBy is not null
