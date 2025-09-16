@@ -3,7 +3,8 @@
     "details": [
       {
         "appIDs": [
-          "72449NCMKQ.com.thirdeyetechlabs.taskdiary"
+          "72449NCMKQ.com.thirdeyetechlabs.taskdiary",
+           "72449NCMKQ.com.thirdeyetechlabs.maintenancediary",
         ],
         "components": [
           {
