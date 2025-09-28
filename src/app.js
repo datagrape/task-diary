@@ -47,6 +47,13 @@ app.get('/.well-known/assetlinks.json', (req, res) =>
   readAndSendJSON(ASSETLINKS_NAME, res)
 );
 
+
+// Optional root alias (only if you want /assetlinks.json to work too)
+app.get('/assetlinks.json', (req, res) =>
+  readAndSendJSON(ASSETLINKS_NAME, res)
+);
+
+
 /* --------------- Debug helpers (remove later) --------------- */
 app.get('/_debug/wk', (req, res) => {
   let files = [];
