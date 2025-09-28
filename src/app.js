@@ -13,13 +13,26 @@ app.use((req, res, next) => {
     next();
   });
   
-// ✅ Serve .well-known from root
+// // ✅ Serve .well-known from root
+// app.use('/.well-known', express.static(path.join(__dirname, '../.well-known')));
+
+// app.get('/.well-known/apple-app-site-association', (req, res) => {
+//   res.type('application/json');
+//   res.sendFile(path.join(__dirname, '../.well-known/apple-app-site-association'));
+// });
+
+// ✅ Serve the AASA file with the right header FIRST
+app.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.set('Content-Type', 'application/json'); // important
+  res.set('Cache-Control', 'public, max-age=600'); // optional
+  res.sendFile(
+    path.join(__dirname, '../.well-known/apple-app-site-association')
+  );
+});
+
+// ✅ Then serve other .well-known files (like assetlinks.json) statically
 app.use('/.well-known', express.static(path.join(__dirname, '../.well-known')));
 
-app.get('/.well-known/apple-app-site-association', (req, res) => {
-  res.type('application/json');
-  res.sendFile(path.join(__dirname, '../.well-known/apple-app-site-association'));
-});
 
 // Routes
 const loginRoutes = require('./routes/loginRoutes');
