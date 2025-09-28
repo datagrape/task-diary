@@ -5,15 +5,13 @@
             {
                 "appID": "72449NCMKQ.com.thirdeyetechlabs.taskdiary",
                 "paths": [
-                    "NOT /_/*",
-                    "/*"
+                    "*"
                 ]
             },
             {
                 "appID": "72449NCMKQ.com.thirdeyetechlabs.maintenancediary",
                 "paths": [
-                    "NOT /_/*",
-                    "/*"
+                    "*"
                 ]
             }
         ]
