@@ -17,50 +17,52 @@ app.use((req, res, next) => {
 });
 
 /* -------------------- .well-known resolver -------------------- */
-// Your repo has ".well-known" at the repo root (one level above /src)
-const CWD = process.cwd();
-const CANDIDATES = [
-  path.join(CWD, '.well-known'),        // repo/.well-known  ← expected
-  path.join(CWD, 'src', '.well-known'), // repo/src/.well-known
-  path.join(CWD, 'public', '.well-known')
+/** Since you placed the folder at repo/src/.well-known, resolve from __dirname */
+const WK_DIRS = [
+  path.join(__dirname, '.well-known'),        // ← your case
+  path.join(process.cwd(), 'src', '.well-known'),
+  path.join(process.cwd(), '.well-known'),
+  path.join(process.cwd(), 'public', '.well-known'),
 ];
 
-function firstExistingDir(paths) {
-  for (const p of paths) {
-    try {
-      if (fs.existsSync(p) && fs.statSync(p).isDirectory()) return p;
-    } catch {}
+function pickExistingDir(candidates) {
+  for (const p of candidates) {
+    try { if (fs.existsSync(p) && fs.statSync(p).isDirectory()) return p; } catch {}
   }
   return null;
 }
 
-const WELL_KNOWN_DIR = firstExistingDir(CANDIDATES);
-const AASA_FILE = 'apple-app-site-association';
-const ASSETLINKS_FILE = 'assetlinks.json';
+const WELL_KNOWN_DIR = pickExistingDir(WK_DIRS);
+const AASA_NAME = 'apple-app-site-association'; // no extension
+const ASSETLINKS_NAME = 'assetlinks.json';
 
-function resolveFile(name) {
+console.log('[BOOT] __dirname =', __dirname);
+console.log('[BOOT] process.cwd() =', process.cwd());
+console.log('[BOOT] .well-known =', WELL_KNOWN_DIR || '(NOT FOUND)');
+
+function resolveWK(name) {
   if (!WELL_KNOWN_DIR) return null;
   const p = path.join(WELL_KNOWN_DIR, name);
   return fs.existsSync(p) ? p : null;
 }
 
 function sendJsonFile(absPath, res, next) {
-  if (!absPath) return res.status(404).json({ error: 'File not found on server' });
-  res.set('Content-Type', 'application/json');
-  res.set('Cache-Control', 'public, max-age=600'); // optional
-  res.sendFile(absPath, err => err && next(err));  // no redirects
+  if (!absPath) return res.status(404).json({ error: 'Not Found' });
+  res.set('Content-Type', 'application/json');       // required for AASA/assetlinks
+  res.set('Cache-Control', 'public, max-age=600');   // optional
+  res.sendFile(absPath, (err) => err && next(err));  // no redirects
 }
 
 /* -------------------- AASA (serve at both Apple paths) -------------------- */
 function sendAASA(req, res, next) {
-  return sendJsonFile(resolveFile(AASA_FILE), res, next);
+  return sendJsonFile(resolveWK(AASA_NAME), res, next);
 }
 app.get('/.well-known/apple-app-site-association', sendAASA);
 app.get('/apple-app-site-association', sendAASA); // some iOS versions try the root URL
 
 /* -------------------- Android assetlinks.json -------------------- */
 app.get('/.well-known/assetlinks.json', (req, res, next) => {
-  return sendJsonFile(resolveFile(ASSETLINKS_FILE), res, next);
+  return sendJsonFile(resolveWK(ASSETLINKS_NAME), res, next);
 });
 
 /* -------------------- Optional static fallback -------------------- */
@@ -69,14 +71,36 @@ if (WELL_KNOWN_DIR) {
     '/.well-known',
     express.static(WELL_KNOWN_DIR, {
       setHeaders(res, filePath) {
-        // ensure extensionless AASA is always served as JSON
-        if (path.basename(filePath) === AASA_FILE) {
+        if (path.basename(filePath) === AASA_NAME) {
           res.setHeader('Content-Type', 'application/json');
         }
       },
     })
   );
 }
+
+/* -------------------- Debug helpers (remove later) -------------------- */
+app.get('/_debug/wk', (req, res) => {
+  let files = [];
+  try { if (WELL_KNOWN_DIR) files = fs.readdirSync(WELL_KNOWN_DIR); } catch {}
+  res.json({
+    wellKnownDir: WELL_KNOWN_DIR || '(not found)',
+    files,
+    aasaFound: !!resolveWK(AASA_NAME),
+    assetlinksFound: !!resolveWK(ASSETLINKS_NAME),
+  });
+});
+
+// View raw contents quickly in the browser
+app.get('/.well-known/_cat/:name', (req, res, next) => {
+  const p = resolveWK(req.params.name);
+  if (!p) return res.status(404).json({ error: 'Not Found' });
+  // If it's the AASA or a .json, force JSON type
+  if (req.params.name === AASA_NAME || req.params.name.endsWith('.json')) {
+    res.set('Content-Type', 'application/json');
+  }
+  res.sendFile(p, (err) => err && next(err));
+});
 
 /* -------------------- Your existing routes -------------------- */
 app.use('/api/login', require('./routes/loginRoutes'));
