@@ -1,111 +1,98 @@
-// app.js
+// src/app.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 
-// -------------------- Core middleware --------------------
+/* -------------------- Core middleware -------------------- */
 app.use(express.json());
-
-// Simple request logger + permissive CORS (tweak for prod)
 app.use((req, res, next) => {
   console.log('Incoming:', req.method, req.url);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // only for dev
+  res.setHeader('Access-Control-Allow-Origin', '*'); // dev only
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
-// -------------------- AASA / Asset Links --------------------
-// Use repo root so paths work on Render (avoids __dirname -> dist issues)
-const WELL_KNOWN_DIR = path.resolve(process.cwd(), '.well-known');
-const AASA_PATH = path.join(WELL_KNOWN_DIR, 'apple-app-site-association');
-const ASSETLINKS_PATH = path.join(WELL_KNOWN_DIR, 'assetlinks.json');
+/* -------------------- .well-known resolver -------------------- */
+// Your repo has ".well-known" at the repo root (one level above /src)
+const CWD = process.cwd();
+const CANDIDATES = [
+  path.join(CWD, '.well-known'),        // repo/.well-known  ← expected
+  path.join(CWD, 'src', '.well-known'), // repo/src/.well-known
+  path.join(CWD, 'public', '.well-known')
+];
 
-// Boot-time visibility
-console.log('[BOOT] .well-known dir:', WELL_KNOWN_DIR);
-console.log('[BOOT] AASA exists:', fs.existsSync(AASA_PATH), '->', AASA_PATH);
-console.log('[BOOT] AssetLinks exists:', fs.existsSync(ASSETLINKS_PATH), '->', ASSETLINKS_PATH);
-
-// Serve AASA (no extension) with correct headers — at BOTH locations iOS may hit
-function sendAASA(req, res, next) {
-  try {
-    if (!fs.existsSync(AASA_PATH)) {
-      console.error('[AASA] File not found at', AASA_PATH);
-      return res.status(404).json({ error: 'AASA missing' });
-    }
-    res.set('Content-Type', 'application/json');        // required
-    res.set('Cache-Control', 'public, max-age=600');    // optional
-    res.sendFile(AASA_PATH, (err) => err && next(err)); // no redirects
-  } catch (e) {
-    next(e);
+function firstExistingDir(paths) {
+  for (const p of paths) {
+    try {
+      if (fs.existsSync(p) && fs.statSync(p).isDirectory()) return p;
+    } catch {}
   }
+  return null;
+}
+
+const WELL_KNOWN_DIR = firstExistingDir(CANDIDATES);
+const AASA_FILE = 'apple-app-site-association';
+const ASSETLINKS_FILE = 'assetlinks.json';
+
+function resolveFile(name) {
+  if (!WELL_KNOWN_DIR) return null;
+  const p = path.join(WELL_KNOWN_DIR, name);
+  return fs.existsSync(p) ? p : null;
+}
+
+function sendJsonFile(absPath, res, next) {
+  if (!absPath) return res.status(404).json({ error: 'File not found on server' });
+  res.set('Content-Type', 'application/json');
+  res.set('Cache-Control', 'public, max-age=600'); // optional
+  res.sendFile(absPath, err => err && next(err));  // no redirects
+}
+
+/* -------------------- AASA (serve at both Apple paths) -------------------- */
+function sendAASA(req, res, next) {
+  return sendJsonFile(resolveFile(AASA_FILE), res, next);
 }
 app.get('/.well-known/apple-app-site-association', sendAASA);
-app.get('/apple-app-site-association', sendAASA); // some iOS versions request this root path
+app.get('/apple-app-site-association', sendAASA); // some iOS versions try the root URL
 
-// Serve assetlinks.json explicitly (Android)
+/* -------------------- Android assetlinks.json -------------------- */
 app.get('/.well-known/assetlinks.json', (req, res, next) => {
-  try {
-    if (!fs.existsSync(ASSETLINKS_PATH)) {
-      console.error('[AssetLinks] File not found at', ASSETLINKS_PATH);
-      return res.status(404).json({ error: 'assetlinks missing' });
-    }
-    res.set('Content-Type', 'application/json');
-    res.sendFile(ASSETLINKS_PATH, (err) => err && next(err));
-  } catch (e) {
-    next(e);
-  }
+  return sendJsonFile(resolveFile(ASSETLINKS_FILE), res, next);
 });
 
-// Optional: static fallback for any other files inside .well-known
-app.use(
-  '/.well-known',
-  express.static(WELL_KNOWN_DIR, {
-    setHeaders(res, filePath) {
-      // Ensure the extensionless AASA is always served as JSON even via static
-      if (path.basename(filePath) === 'apple-app-site-association') {
-        res.setHeader('Content-Type', 'application/json');
-      }
-    },
-  })
-);
+/* -------------------- Optional static fallback -------------------- */
+if (WELL_KNOWN_DIR) {
+  app.use(
+    '/.well-known',
+    express.static(WELL_KNOWN_DIR, {
+      setHeaders(res, filePath) {
+        // ensure extensionless AASA is always served as JSON
+        if (path.basename(filePath) === AASA_FILE) {
+          res.setHeader('Content-Type', 'application/json');
+        }
+      },
+    })
+  );
+}
 
-// -------------------- App routes --------------------
-const loginRoutes = require('./routes/loginRoutes');
-app.use('/api/login', loginRoutes);
+/* -------------------- Your existing routes -------------------- */
+app.use('/api/login', require('./routes/loginRoutes'));
+app.use('/api/registerUser', require('./routes/registerUserRoutes'));
+app.use('/api/sendotp', require('./routes/otpRoutes'));
+app.use('/api/verifyOTP', require('./routes/otpVerifyRoutes'));
+app.use('/api/activity', require('./routes/activityRoutes'));
+app.use('/api/group', require('./routes/groupRoutes'));
+app.use('/api/task', require('./routes/taskRoutes'));
+app.use('/api/subscriptionupdate', require('./routes/subscription'));
+app.use('/api/link-data', require('./routes/linkDataUpdateRoutes'));
 
-const registerUserRoutes = require('./routes/registerUserRoutes');
-app.use('/api/registerUser', registerUserRoutes);
-
-const otpRoutes = require('./routes/otpRoutes');
-app.use('/api/sendotp', otpRoutes);
-
-const otpVerifyRoutes = require('./routes/otpVerifyRoutes');
-app.use('/api/verifyOTP', otpVerifyRoutes);
-
-const activityRoutes = require('./routes/activityRoutes');
-app.use('/api/activity', activityRoutes);
-
-const groupRoutes = require('./routes/groupRoutes');
-app.use('/api/group', groupRoutes);
-
-const taskRoutes = require('./routes/taskRoutes');
-app.use('/api/task', taskRoutes);
-
-const subscriptionRoutes = require('./routes/subscription');
-app.use('/api/subscriptionupdate', subscriptionRoutes);
-
-const linkDataUpdateRoutes = require('./routes/linkDataUpdateRoutes');
-app.use('/api/link-data', linkDataUpdateRoutes);
-
-// Health check (useful on Render)
+/* -------------------- Health check -------------------- */
 app.get('/_health', (req, res) => res.json({ ok: true }));
 
-// -------------------- Error handling --------------------
-const errorHandler = require('./middlewares/errorHandler');
-app.use(errorHandler);
+/* -------------------- Error handling -------------------- */
+app.use(require('./middlewares/errorHandler'));
 
 module.exports = app;
