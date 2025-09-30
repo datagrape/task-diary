@@ -7,12 +7,6 @@
                 "paths": [
                     "*"
                 ]
-            },
-            {
-                "appID": "72449NCMKQ.com.thirdeyetechlabs.maintenancediary",
-                "paths": [
-                    "*"
-                ]
             }
         ]
     }
