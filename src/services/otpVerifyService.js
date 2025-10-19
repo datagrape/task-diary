@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { Prisma } = require('@prisma/client');
+const prisma = require('../prismaClient');
 
 // Verify OTP from DB
 exports.verifyOtp = async (email) => {

@@ -89,6 +89,26 @@ app.use('/api/task', require('./routes/taskRoutes'));
 app.use('/api/subscriptionupdate', require('./routes/subscription'));
 app.use('/api/link-data', require('./routes/linkDataUpdateRoutes'));
 
+// after app.use('/api/registerUser', registerUserRouter);
+
+// Centralized error handler
+app.use((err, req, res, next) => {
+  const status = err.status || 500;
+
+  // Avoid leaking internals
+  const payload = {
+    error: err.status === 409
+      ? err.message // e.g., duplicate email
+      : 'Unexpected error. Please try again.'
+  };
+
+  // Optional structured log
+  console.error({ err, path: req.path }, 'request_failed');
+
+  res.status(status).json(payload);
+});
+
+
 /* ---------------- Health & errors ---------------- */
 app.get('/_health', (req, res) => res.json({ ok: true }));
 app.use(require('./middlewares/errorHandler'));

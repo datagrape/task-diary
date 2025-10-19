@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { Prisma } = require('@prisma/client');
+const prisma = require('../prismaClient');
 const nodemailer = require('nodemailer');
 
 // Configure Nodemailer

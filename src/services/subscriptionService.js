@@ -18,8 +18,8 @@
 //   });
 
 // };
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { Prisma } = require('@prisma/client');
+const prisma = require('../prismaClient');
 
 exports.subscription = async (email, subscriptionType) => {
   const user = await prisma.user.findUnique({

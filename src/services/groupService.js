@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { Prisma } = require('@prisma/client');
+const prisma = require('../prismaClient');
 
 exports.createGroup = async (name, userId) => {
     return prisma.group.create({
