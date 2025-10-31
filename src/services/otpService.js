@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const nodemailer = require('nodemailer');
-const isDisposableEmail = require('is-disposable-email'); // optional but recommended
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -20,11 +19,6 @@ function generateOtp() {
 // Send OTP and Save to DB
 exports.sendOtp = async (email) => {
   try {
-    // 🚫 Optional check to block Yopmail or disposable emails
-    if (isDisposableEmail(email)) {
-      throw new Error("Temporary or disposable emails are not allowed.");
-    }
-
     const otp = generateOtp();
     const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // expires in 10 minutes
 
@@ -48,12 +42,12 @@ exports.sendOtp = async (email) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`OTP sent successfully to ${email}`);
+    console.log(`✅ OTP sent successfully to ${email}`);
 
     return { success: true, message: 'OTP sent successfully' };
 
   } catch (err) {
-    console.error("Error sending OTP:", err);
+    console.error("❌ Error sending OTP:", err);
     throw new Error(err.message || "Failed to send OTP");
   }
 };
