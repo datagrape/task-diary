@@ -1,14 +1,16 @@
 const { Prisma } = require('@prisma/client');
 const prisma = require('../prismaClient');
 
+
 // Verify OTP from DB
 exports.verifyOtp = async (email) => {
-    return prisma.user.findUnique({
-        where: {
-            email: {
-                equals: email,
-                mode: 'insensitive',
-            },
-        },
+    const user = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: 'insensitive' } },
     });
+
+    if (!user) {
+        throw new Error('User with that email not found');
+    }
+    return prisma.user.findUnique({ where: { id: user.id } });
 };
+
