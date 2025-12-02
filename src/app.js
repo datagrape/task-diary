@@ -98,19 +98,19 @@ app.use('/api/account/delete', require('./routes/deleteAccountRoutes'));
 
 
 /* ---------------- Centralized error handler ---------------- */
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
+// app.use((err, req, res, next) => {
+//   const status = err.status || 500;
 
-  const payload = {
-    error: err.status === 409
-      ? err.message
-      : 'Unexpected error. Please try again.'
-  };
+//   const payload = {
+//     error: err.status === 409
+//       ? err.message
+//       : 'Unexpected error. Please try again.'
+//   };
 
-  console.error({ err, path: req.path }, 'request_failed');
+//   console.error({ err, path: req.path }, 'request_failed');
 
-  res.status(status).json(payload);
-});
+//   res.status(status).json(payload);
+// });
 
 /* ---------------- Health check ---------------- */
 app.get('/_health', (req, res) => res.json({ ok: true }));

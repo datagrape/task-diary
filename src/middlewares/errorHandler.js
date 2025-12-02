@@ -1,5 +1,8 @@
 module.exports = (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: err.message });
-  };
-  
+  console.error("🔥 Error Handler:", err);
+
+  const status = err.status || 500;
+  const message = err.body?.message || err.message || "Unexpected error";
+
+  return res.status(status).json({ error: message });
+};
