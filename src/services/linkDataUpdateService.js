@@ -10,16 +10,14 @@ function generateOTP(length = 6) {
 // USER ENABLED CHECK
 // -------------------------------------------------------
 const ensureUserEnabled = async (userId) => {
-  if (!userId) return; // Some flows may not require a user
+  // Early return if user ID is not provided or invalid
+  if (!userId) return; 
 
   const uid = typeof userId === 'string' ? parseInt(userId, 10) : userId;
   
-  // Validate that uid is a valid number
+  // If parsing resulted in NaN or invalid number, skip validation (user not required)
   if (isNaN(uid) || uid <= 0) {
-    const err = new Error('Invalid user ID');
-    err.status = 400;
-    err.body = { message: 'Invalid user ID provided' };
-    throw err;
+    return; // Silently skip if no valid user ID provided
   }
 
   const user = await prisma.user.findUnique({
