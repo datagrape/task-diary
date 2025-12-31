@@ -13,6 +13,14 @@ const ensureUserEnabled = async (userId) => {
   if (!userId) return; // Some flows may not require a user
 
   const uid = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+  
+  // Validate that uid is a valid number
+  if (isNaN(uid) || uid <= 0) {
+    const err = new Error('Invalid user ID');
+    err.status = 400;
+    err.body = { message: 'Invalid user ID provided' };
+    throw err;
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: uid },
