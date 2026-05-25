@@ -95,6 +95,8 @@ app.use('/api/task', require('./routes/taskRoutes'));
 app.use('/api/subscriptionupdate', require('./routes/subscription'));
 app.use('/api/link-data', require('./routes/linkDataUpdateRoutes'));
 app.use('/api/account/delete', require('./routes/deleteAccountRoutes'));
+app.use('/api/location-request', require('./routes/locationRequestRoutes'));
+app.use('/api/forgot-password', require('./routes/forgotPasswordRoutes'));
 
 
 /* ---------------- Centralized error handler ---------------- */

@@ -89,7 +89,7 @@ exports.getLinkData = async (req, res) => {
   }
 
   try {
-    const linkResponse = await linkDataUpdateService.getLinkData(link); // Updated service function
+    const linkResponse = await linkDataUpdateService.getLinkData(link);
 
     return res.status(200).json({
       message: "Link data retrieved successfully",
@@ -145,6 +145,7 @@ exports.getMemberLinkData = async (req, res) => {
 
 exports.checkLinkAccessed = async (req, res) => {
   let { link } = req.query;
+  const deviceToken = req.headers['device-token'] || req.headers['x-device-token'] || null;
 
   if (!link) {
     return res.status(400).json({ error: "Missing required field: link is required." });
@@ -154,7 +155,7 @@ exports.checkLinkAccessed = async (req, res) => {
   link = cleanString(link);
 
   try {
-    const result = await linkDataUpdateService.checkLinkAccessed(link);
+    const result = await linkDataUpdateService.checkLinkAccessed(link, { deviceToken });
 
     if (result?.message === "Link is expired or not found") {
       return res.status(404).json({ message: result.message });

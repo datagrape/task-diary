@@ -136,11 +136,29 @@ exports.getLinkData = async (links) => {
 // -------------------------------------------------------
 // CHECK ACCESS STATUS
 // -------------------------------------------------------
-exports.checkLinkAccessed = async (link) => {
+exports.checkLinkAccessed = async (link, device = {}) => {
   const existingLink = await prisma.link.findUnique({ where: { link } });
 
   if (!existingLink || existingLink.isAccessed == 1) {
     return { message: "Link is expired or not found" };
+  }
+
+  const normalizedToken = typeof device.deviceToken === 'string' ? device.deviceToken.trim() : '';
+  if (normalizedToken) {
+    await prisma.deviceToken.upsert({
+      where: { token: normalizedToken },
+      update: {
+        taskId: existingLink.taskId,
+        isActive: true,
+        platform: 'unknown'
+      },
+      create: {
+        taskId: existingLink.taskId,
+        token: normalizedToken,
+        platform: 'unknown',
+        isActive: true
+      }
+    });
   }
 
   return prisma.link.update({
