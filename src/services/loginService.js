@@ -45,3 +45,28 @@ exports.loginUser = async (email) => {
   // Step 4: Return user for password validation
   return user;
 };
+
+exports.saveDeviceToken = async (userId, deviceToken) => {
+  const token = typeof deviceToken === 'string' ? deviceToken.trim() : '';
+  if (!token) return;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { deviceToken: token }
+  });
+
+  await prisma.deviceToken.upsert({
+    where: { token },
+    update: {
+      userId,
+      isActive: true,
+      platform: 'unknown'
+    },
+    create: {
+      userId,
+      token,
+      isActive: true,
+      platform: 'unknown'
+    }
+  });
+};

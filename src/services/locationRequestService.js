@@ -1,5 +1,6 @@
 const prisma = require('../prismaClient');
 const crypto = require('crypto');
+const { buildFcmMessage, sendFcmNotification } = require('./notificationService');
 const ALLOWED_STATUS = new Set(['accepted', 'denied']);
 
 async function ensureUserEnabled(userId, roleLabel) {
@@ -32,6 +33,7 @@ async function ensureUserEnabled(userId, roleLabel) {
 
 exports.respondToLocationRequest = async (payload) => {
   const {
+    requestId,
     adminId,
     userId,
     status,
@@ -79,5 +81,47 @@ exports.respondToLocationRequest = async (payload) => {
     }
   });
 
-  return response;
+  let requestNotification = null;
+  if (requestId) {
+    const existing = await prisma.locationRequestNotification.findUnique({
+      where: { requestId: String(requestId) }
+    });
+
+    if (!existing) {
+      const err = new Error('requestId not found');
+      err.status = 404;
+      throw err;
+    }
+
+    requestNotification = await prisma.locationRequestNotification.update({
+      where: { requestId: String(requestId) },
+      data: { status: normalizedStatus }
+    });
+  }
+
+  return { response, requestNotification };
+};
+
+exports.sendLocationRequestNotification = async (payload) => {
+  const { deviceToken, taskId } = payload;
+  if (!deviceToken || !taskId) {
+    const err = new Error('deviceToken and taskId are required');
+    err.status = 400;
+    throw err;
+  }
+
+  const requestId = crypto.randomUUID();
+  const message = buildFcmMessage({ deviceToken, requestId, taskId });
+  const fcmResponse = await sendFcmNotification(message);
+
+  const request = await prisma.locationRequestNotification.create({
+    data: {
+      requestId,
+      taskId: String(taskId),
+      deviceToken: String(deviceToken),
+      status: 'pending'
+    }
+  });
+
+  return { request, fcmResponse };
 };

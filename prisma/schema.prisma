@@ -37,6 +37,7 @@ model User {
   id                          Int                       @id @default(autoincrement())
   email                       String                    @unique
   name                        String?
+  deviceToken                 String?
   cancellationReason          String?
   lastPaymentDate             DateTime?
   link                        String?
@@ -146,6 +147,16 @@ model LocationRequestResponse {
   @@index([requestId])
   @@index([userId])
   @@index([adminId])
+}
+
+model LocationRequestNotification {
+  id          Int      @id @default(autoincrement())
+  requestId   String   @unique
+  taskId      String
+  deviceToken String
+  status      String   @default("pending")
+  sentAt      DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum UserType {
