@@ -37,7 +37,6 @@ model User {
   id                          Int                       @id @default(autoincrement())
   email                       String                    @unique
   name                        String?
-  deviceToken                 String?
   cancellationReason          String?
   lastPaymentDate             DateTime?
   link                        String?
@@ -50,6 +49,7 @@ model User {
   isDisabled                  Boolean                   @default(false)
   passwordResetToken          String?
   passwordResetTokenExpiresAt DateTime?
+  deviceToken                 String?
   deviceTokens                DeviceToken[]
   locationResponsesAsAdmin    LocationRequestResponse[] @relation("LocationResponseAdmin")
   locationResponsesAsUser     LocationRequestResponse[] @relation("LocationResponseUser")
