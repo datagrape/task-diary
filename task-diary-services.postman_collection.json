@@ -551,7 +551,7 @@
                                                   }
                                   },
                                   {
-                                      "name":  "GET Link Data With Device Token",
+                                      "name":  "GET Link Data With Device Token + Request Status",
                                       "request":  {
                                                       "method":  "GET",
                                                       "header":  [
@@ -570,7 +570,8 @@
                                                                   "query":  [
 
                                                                             ]
-                                                              }
+                                                              },
+                                                      "description":  "Returns all links with deviceTokens and latest requestStatus/requestStatusUpdatedAt for each taskId+deviceToken pair."
                                                   }
                                   }
                               ]
