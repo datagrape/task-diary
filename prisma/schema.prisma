@@ -21,15 +21,21 @@ model Group {
 
 model Task {
   id           Int     @id @default(autoincrement())
-  userId       Int
+  taskId       String  @unique
+  userId       Int?
   groupName    String
-  groupId      Int
+  groupId      Int?
   activityName String
-  activityId   Int
+  activityId   Int?
   member       String
   dueDate      String
   name         String?
+  link         String?
+  completeddate String?
+  updatedBy    String?
+  url          String?
   location     String?
+  status       String  @default("created")
   type         String
 }
 
@@ -96,6 +102,7 @@ model Link {
   taskId        String
   taskname      String?
   updatedBy     String?
+  status        String  @default("created")
 }
 
 model paidmemberdata {
