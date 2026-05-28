@@ -335,7 +335,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\n  \"name\": \"Complete report\",\n  \"userId\": 1,\n  \"groupName\": \"Team Alpha\",\n  \"groupId\": 1,\n  \"activityName\": \"Work\",\n  \"activityId\": 1,\n  \"member\": \"member@example.com\",\n  \"dueDate\": \"2026-05-31\",\n  \"type\": \"task\",\n  \"location\": \"Remote\"\n}"
+                                                                   "raw":  "{\n  \"name\": \"Complete report\",\n  \"activityName\": \"Work\",\n  \"activityId\": null,\n  \"groupName\": \"Team Alpha\",\n  \"groupId\": null,\n  \"userId\": null,\n  \"member\": \"member@example.com\",\n  \"link\": \"963de513-989d-41fb-8a8c-6cabc10e97d0\",\n  \"dueDate\": \"2026-05-31\",\n  \"type\": \"assigned\",\n  \"status\": \"assigned\",\n  \"completeddate\": \"\",\n  \"location\": \"\",\n  \"updatedBy\": \"\",\n  \"taskId\": \"9749bd50-8cfc-4743-bde4-4660b7f092fc\",\n  \"url\": \"https://example.com/link/9749bd50-8cfc-4743-bde4-4660b7f092fc\"\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "{{baseUrl}}/api/task",
@@ -424,7 +424,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\n  \"taskId\": \"TASK-1001\",\n  \"link\": \"abc123\",\n  \"owner\": \"owner@example.com\",\n  \"duedate\": \"2026-05-31\",\n  \"group\": \"Team Alpha\",\n  \"member\": \"member@example.com\",\n  \"taskname\": \"Complete report\",\n  \"completeddate\": \"\",\n  \"location\": \"Remote\",\n  \"subscription\": \"Premium\",\n  \"updatedBy\": \"1\"\n}"
+                                                                   "raw":  "{\n  \"taskId\": \"TASK-1001\",\n  \"link\": \"abc123\",\n  \"owner\": \"owner@example.com\",\n  \"duedate\": \"2026-05-31\",\n  \"group\": \"Team Alpha\",\n  \"member\": \"member@example.com\",\n  \"taskname\": \"Complete report\",\n  \"completeddate\": \"\",\n  \"location\": \"Remote\",\n  \"subscription\": \"Premium\",\n  \"updatedBy\": \"1\",\n  \"status\": \"created\"\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "{{baseUrl}}/api/link-data",

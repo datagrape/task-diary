@@ -7,7 +7,7 @@ function cleanString(value) {
 
 exports.linkData = async (req, res) => {
   let {
-    taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription, updatedBy
+    taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription, updatedBy, status
   } = req.body;
 
   if (!link) {
@@ -27,10 +27,11 @@ exports.linkData = async (req, res) => {
     : cleanString(location);
   subscription = cleanString(subscription);
   updatedBy = cleanString(updatedBy);
+  status = cleanString(status);
 
   
   // 🔍 Check for null bytes (for debugging)
-  for (const [key, value] of Object.entries({taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription, updatedBy })) {
+  for (const [key, value] of Object.entries({taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription, updatedBy, status })) {
     if (typeof value === 'string' && value.includes('\x00')) {
       console.log(`🚨 Null byte found in field: ${key}`);
     }
@@ -38,7 +39,7 @@ exports.linkData = async (req, res) => {
 
   try {
     const linkResponse = await linkDataUpdateService.linkData(
-      taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription,updatedBy
+      taskId, link, owner, duedate, group, member, taskname, completeddate, location, subscription,updatedBy, status
     );
 
     return res.status(201).json({

@@ -56,25 +56,27 @@ exports.linkData = async (
   completeddate,
   location,
   subscription,
-  updatedBy
+  updatedBy,
+  status
 ) => {
+  const ALLOWED_TASK_STATUS = new Set(['created', 'assigned', 'completed']);
+  const normalizedStatus = String(status || '').trim().toLowerCase();
+  const finalStatus =
+    normalizedStatus && ALLOWED_TASK_STATUS.has(normalizedStatus)
+      ? normalizedStatus
+      : (completeddate ? 'completed' : undefined);
 
-  // 🔐 Validate the user performing the update
   await ensureUserEnabled(updatedBy);
 
   const existingLink = await prisma.link.findUnique({ where: { link } });
-
   const linksWithTaskId = await prisma.link.findMany({ where: { taskId } });
 
   const allUpdatedByNull =
     linksWithTaskId.length > 0 &&
     linksWithTaskId.every(l => l.updatedBy === null);
 
-  // ------------------------------------------
-  // CASE 1: No link exists → create new entry
-  // ------------------------------------------
   if (!existingLink) {
-    return prisma.link.create({
+    const created = await prisma.link.create({
       data: {
         taskId,
         link,
@@ -85,14 +87,21 @@ exports.linkData = async (
         taskname,
         completeddate,
         location,
-        subscription
+        subscription,
+        status: finalStatus || 'created'
       }
     });
+
+    if (finalStatus) {
+      await prisma.task.updateMany({
+        where: { taskId },
+        data: { status: finalStatus, completeddate, updatedBy, location }
+      });
+    }
+
+    return created;
   }
 
-  // --------------------------------------------------------
-  // CASE 2: Link exists + all updatedBy are null → first update
-  // --------------------------------------------------------
   if (existingLink && allUpdatedByNull) {
     await prisma.link.updateMany({
       where: { taskId },
@@ -100,23 +109,40 @@ exports.linkData = async (
         completeddate,
         location,
         updatedBy,
-        isAccessed: 1
+        isAccessed: 1,
+        ...(finalStatus ? { status: finalStatus } : {})
       }
     });
+
+    if (finalStatus) {
+      await prisma.task.updateMany({
+        where: { taskId },
+        data: { status: finalStatus, completeddate, updatedBy, location }
+      });
+    }
 
     return prisma.link.findUnique({ where: { link } });
   }
 
-  // --------------------------------------------------------
-  // CASE 3: Link already updated by someone else → return their values
-  // --------------------------------------------------------
   const updatedLink = linksWithTaskId.find(l => l.updatedBy !== null);
+
+  if (finalStatus) {
+    await prisma.link.updateMany({
+      where: { taskId },
+      data: { status: finalStatus }
+    });
+
+    await prisma.task.updateMany({
+      where: { taskId },
+      data: { status: finalStatus, completeddate, updatedBy, location }
+    });
+  }
 
   return {
     completeddate: updatedLink?.completeddate,
     location: updatedLink?.location,
     updatedBy: updatedLink?.updatedBy,
-    message: "Link is already updatedBy by someone"
+    message: 'Link is already updatedBy by someone'
   };
 };
 
@@ -319,3 +345,4 @@ exports.getOwnerLinkData = async (owner) => {
 
   return [];
 };
+
