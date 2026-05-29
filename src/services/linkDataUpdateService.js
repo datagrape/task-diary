@@ -97,6 +97,15 @@ exports.linkData = async (
 
   const existingLink = await prisma.link.findUnique({ where: { link } });
   const linksWithTaskId = await prisma.link.findMany({ where: { taskId } });
+  const taskScopeByIdentity = normalizedUserId !== null
+    ? { taskId, userId: normalizedUserId, ...(link ? { link } : {}) }
+    : { taskId, guid: normalizedGuid, ...(link ? { link } : {}) };
+  const taskScopeForCompletion = {
+    taskId,
+    ...(link ? { link } : {})
+  };
+  const resolveTaskScope = () =>
+    finalStatus === 'completed' ? taskScopeForCompletion : taskScopeByIdentity;
 
   const allUpdatedByNull =
     linksWithTaskId.length > 0 &&
@@ -123,7 +132,7 @@ exports.linkData = async (
 
     if (finalStatus) {
       await prisma.task.updateMany({
-        where: { taskId },
+        where: resolveTaskScope(),
         data: { status: finalStatus, completeddate, updatedBy, location }
       });
     }
@@ -146,7 +155,7 @@ exports.linkData = async (
 
     if (finalStatus) {
       await prisma.task.updateMany({
-        where: { taskId },
+        where: resolveTaskScope(),
         data: { status: finalStatus, completeddate, updatedBy, location }
       });
     }
@@ -163,7 +172,7 @@ exports.linkData = async (
     });
 
     await prisma.task.updateMany({
-      where: { taskId },
+      where: resolveTaskScope(),
       data: { status: finalStatus, completeddate, updatedBy, location }
     });
   }

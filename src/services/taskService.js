@@ -112,49 +112,38 @@ exports.createTask = async (payload) => {
     }
 
     return prisma.$transaction(async (tx) => {
-        const task = await tx.task.upsert({
-            where: { taskId: String(taskId) },
-            update: {
-                name,
-                userId: normalizedUserId,
-                guid: normalizedGuid,
-                groupName,
-                groupId: normalizedGroupId,
-                activityName,
-                activityId: normalizedActivityId,
-                member,
-                dueDate,
-                type,
-                status: normalizedStatus,
-                location: normalizedLocation,
-                link: link || null,
-                completeddate: completeddate || null,
-                updatedBy: updatedBy || null,
-                url: url || null
-            },
-            create: {
-                taskId: String(taskId),
-                name,
-                userId: normalizedUserId,
-                guid: normalizedGuid,
-                groupName,
-                groupId: normalizedGroupId,
-                activityName,
-                activityId: normalizedActivityId,
-                member,
-                dueDate,
-                type,
-                status: normalizedStatus,
-                location: normalizedLocation,
-                link: link || null,
-                completeddate: completeddate || null,
-                updatedBy: updatedBy || null,
-                url: url || null
-            }
-        });
+        const taskIdValue = String(taskId);
+        const identityWhere = normalizedUserId !== null
+            ? { taskId: taskIdValue, userId: normalizedUserId }
+            : { taskId: taskIdValue, guid: normalizedGuid };
+
+        const existingTask = await tx.task.findFirst({ where: identityWhere });
+
+        const baseData = {
+            taskId: taskIdValue,
+            name,
+            userId: normalizedUserId,
+            guid: normalizedGuid,
+            groupName,
+            groupId: normalizedGroupId,
+            activityName,
+            activityId: normalizedActivityId,
+            member,
+            dueDate,
+            type,
+            status: normalizedStatus,
+            location: normalizedLocation,
+            link: link || null,
+            completeddate: completeddate || null,
+            updatedBy: updatedBy || null,
+            url: url || null
+        };
+
+        const task = existingTask
+            ? await tx.task.update({ where: { id: existingTask.id }, data: baseData })
+            : await tx.task.create({ data: baseData });
 
         const linkValue = link ? String(link) : null;
-        const taskIdValue = String(taskId);
 
         if (linkValue) {
             const existingLink = await tx.link.findUnique({ where: { link: linkValue } });
