@@ -42,6 +42,18 @@ const ensureUserEnabled = async (userId) => {
   return user;
 };
 
+const normalizeIntOrNull = (value) => {
+  if (value === undefined || value === null || value === '') return null;
+  const parsed = typeof value === 'string' ? parseInt(value, 10) : value;
+  return Number.isInteger(parsed) ? parsed : null;
+};
+
+const normalizeGuidOrNull = (value) => {
+  if (value === undefined || value === null) return null;
+  const trimmed = String(value).trim();
+  return trimmed || null;
+};
+
 // -------------------------------------------------------
 // LINK DATA CREATE/UPDATE
 // -------------------------------------------------------
@@ -57,7 +69,9 @@ exports.linkData = async (
   location,
   subscription,
   updatedBy,
-  status
+  status,
+  userId,
+  guid
 ) => {
   const ALLOWED_TASK_STATUS = new Set(['created', 'assigned', 'completed']);
   const normalizedStatus = String(status || '').trim().toLowerCase();
@@ -66,7 +80,20 @@ exports.linkData = async (
       ? normalizedStatus
       : (completeddate ? 'completed' : undefined);
 
-  await ensureUserEnabled(updatedBy);
+  const normalizedUserId = normalizeIntOrNull(userId);
+  const normalizedGuid = normalizeGuidOrNull(guid);
+  if (normalizedUserId !== null && normalizedGuid) {
+    const err = new Error('Provide only one of userId or guid');
+    err.status = 400;
+    throw err;
+  }
+  if (normalizedUserId !== null) {
+    await ensureUserEnabled(normalizedUserId);
+  } else if (!normalizedGuid) {
+    const err = new Error('userId or guid is required');
+    err.status = 400;
+    throw err;
+  }
 
   const existingLink = await prisma.link.findUnique({ where: { link } });
   const linksWithTaskId = await prisma.link.findMany({ where: { taskId } });
@@ -88,7 +115,9 @@ exports.linkData = async (
         completeddate,
         location,
         subscription,
-        status: finalStatus || 'created'
+        status: finalStatus || 'created',
+        userId: normalizedUserId,
+        guid: normalizedGuid
       }
     });
 
@@ -109,6 +138,8 @@ exports.linkData = async (
         completeddate,
         location,
         updatedBy,
+        userId: normalizedUserId,
+        guid: normalizedGuid,
         isAccessed: 1,
         ...(finalStatus ? { status: finalStatus } : {})
       }

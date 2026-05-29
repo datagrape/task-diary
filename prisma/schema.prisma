@@ -20,23 +20,23 @@ model Group {
 }
 
 model Task {
-  id           Int     @id @default(autoincrement())
-  taskId       String? @unique
-  userId       Int?
-  groupName    String
-  groupId      Int?
-  activityName String
-  activityId   Int?
-  member       String
-  dueDate      String
-  name         String?
-  link         String?
+  id            Int     @id @default(autoincrement())
+  userId        Int?
+  groupName     String
+  groupId       Int?
+  activityName  String
+  activityId    Int?
+  member        String
+  dueDate       String
+  name          String?
+  location      String?
+  type          String
   completeddate String?
-  updatedBy    String?
-  url          String?
-  location     String?
-  status       String  @default("created")
-  type         String
+  link          String?
+  status        String  @default("created")
+  taskId        String? @unique
+  updatedBy     String?
+  url           String?
 }
 
 model User {

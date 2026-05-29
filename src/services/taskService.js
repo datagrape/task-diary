@@ -2,6 +2,33 @@ const { Prisma } = require('@prisma/client');
 const prisma = require('../prismaClient');
 const ALLOWED_TASK_STATUS = new Set(['created', 'assigned', 'completed']);
 
+const normalizeIntOrNull = (value) => {
+    if (value === undefined || value === null || value === '') return null;
+    const parsed = typeof value === 'string' ? parseInt(value, 10) : value;
+    return Number.isInteger(parsed) ? parsed : null;
+};
+
+const normalizeGuidOrNull = (value) => {
+    if (value === undefined || value === null) return null;
+    const trimmed = String(value).trim();
+    return trimmed || null;
+};
+
+const buildScope = ({ userId, guid }) => {
+    const uid = normalizeIntOrNull(userId);
+    const guidValue = normalizeGuidOrNull(guid);
+    if (uid !== null && guidValue) {
+        const err = new Error('Provide only one of userId or guid');
+        err.status = 400;
+        throw err;
+    }
+    if (uid !== null) return { userId: uid };
+    if (guidValue) return { guid: guidValue };
+    const err = new Error('userId or guid is required');
+    err.status = 400;
+    throw err;
+};
+
 const ensureUserEnabled = async (userId) => {
     const uid = typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
@@ -34,6 +61,7 @@ exports.createTask = async (payload) => {
     const {
         name,
         userId,
+        guid,
         groupName,
         groupId,
         activityName,
@@ -50,11 +78,6 @@ exports.createTask = async (payload) => {
         url
     } = payload;
 
-    const normalizeIntOrNull = (value) => {
-        if (value === undefined || value === null || value === '') return null;
-        const parsed = typeof value === 'string' ? parseInt(value, 10) : value;
-        return Number.isInteger(parsed) ? parsed : null;
-    };
     const normalizeLocation = (value) =>
         typeof value === 'object' && value !== null ? JSON.stringify(value) : value ?? null;
     const normalizeStatus = (value) => {
@@ -69,6 +92,12 @@ exports.createTask = async (payload) => {
     };
 
     const normalizedUserId = normalizeIntOrNull(userId);
+    const normalizedGuid = normalizeGuidOrNull(guid);
+    if (normalizedUserId !== null && normalizedGuid) {
+        const err = new Error('Provide only one of userId or guid');
+        err.status = 400;
+        throw err;
+    }
     const normalizedGroupId = normalizeIntOrNull(groupId);
     const normalizedActivityId = normalizeIntOrNull(activityId);
     const normalizedLocation = normalizeLocation(location);
@@ -76,6 +105,10 @@ exports.createTask = async (payload) => {
 
     if (normalizedUserId !== null) {
         await ensureUserEnabled(normalizedUserId);
+    } else if (!normalizedGuid) {
+        const err = new Error('userId or guid is required');
+        err.status = 400;
+        throw err;
     }
 
     return prisma.$transaction(async (tx) => {
@@ -84,6 +117,7 @@ exports.createTask = async (payload) => {
             update: {
                 name,
                 userId: normalizedUserId,
+                guid: normalizedGuid,
                 groupName,
                 groupId: normalizedGroupId,
                 activityName,
@@ -102,6 +136,7 @@ exports.createTask = async (payload) => {
                 taskId: String(taskId),
                 name,
                 userId: normalizedUserId,
+                guid: normalizedGuid,
                 groupName,
                 groupId: normalizedGroupId,
                 activityName,
@@ -132,6 +167,8 @@ exports.createTask = async (payload) => {
                         taskId: taskIdValue,
                         link: linkValue,
                         owner: normalizedUserId !== null ? String(normalizedUserId) : null,
+                        userId: normalizedUserId,
+                        guid: normalizedGuid,
                         duedate: dueDate,
                         group: groupName,
                         member,
@@ -148,6 +185,8 @@ exports.createTask = async (payload) => {
                         taskId: taskIdValue,
                         link: linkValue,
                         owner: normalizedUserId !== null ? String(normalizedUserId) : null,
+                        userId: normalizedUserId,
+                        guid: normalizedGuid,
                         duedate: dueDate,
                         group: groupName,
                         member,
@@ -169,15 +208,12 @@ exports.createTask = async (payload) => {
 // ----------------------------------------------------
 // GET TASKS BY USER
 // ----------------------------------------------------
-exports.getTaskByUser = async (userId) => {
-    const uid = typeof userId === 'string' ? parseInt(userId, 10) : userId;
-    if (!Number.isInteger(uid)) return [];
-    await ensureUserEnabled(uid);
+exports.getTaskByUser = async (userId, guid) => {
+    const scope = buildScope({ userId, guid });
+    if (scope.userId !== undefined) await ensureUserEnabled(scope.userId);
 
     const tasks = await prisma.task.findMany({
-        where: {
-            userId: uid,
-        },
+        where: scope,
     });
 
     return tasks;
