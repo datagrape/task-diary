@@ -10,18 +10,27 @@ datasource db {
 model Activity {
   id     Int    @id @default(autoincrement())
   name   String
-  userId Int
+  userId Int?
+  guid   String?
+
+  @@index([userId])
+  @@index([guid])
 }
 
 model Group {
   id     Int    @id @default(autoincrement())
-  userId Int
+  userId Int?
+  guid   String?
   name   String
+
+  @@index([userId])
+  @@index([guid])
 }
 
 model Task {
   id            Int     @id @default(autoincrement())
   userId        Int?
+  guid          String?
   groupName     String
   groupId       Int?
   activityName  String
@@ -37,6 +46,9 @@ model Task {
   taskId        String? @unique
   updatedBy     String?
   url           String?
+
+  @@index([userId])
+  @@index([guid])
 }
 
 model User {
@@ -103,6 +115,11 @@ model Link {
   taskname      String?
   updatedBy     String?
   status        String  @default("created")
+  userId        Int?
+  guid          String?
+
+  @@index([userId])
+  @@index([guid])
 }
 
 model paidmemberdata {
