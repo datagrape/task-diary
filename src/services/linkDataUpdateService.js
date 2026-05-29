@@ -140,7 +140,6 @@ exports.linkData = async (
         updatedBy,
         userId: normalizedUserId,
         guid: normalizedGuid,
-        isAccessed: 1,
         ...(finalStatus ? { status: finalStatus } : {})
       }
     });
